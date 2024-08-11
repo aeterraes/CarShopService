@@ -1,0 +1,184 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="1" author="author">
+        <sql>
+            CREATE SCHEMA IF NOT EXISTS entity;
+        </sql>
+    </changeSet>
+
+    <changeSet id="2" author="author">
+        <createTable tableName="cars" schemaName="entity">
+            <column autoIncrement="true" name="carid" type="SERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="make" type="VARCHAR(50)"/>
+            <column name="model" type="VARCHAR(50)"/>
+            <column name="year" type="INT"/>
+            <column name="mileage" type="DOUBLE PRECISION"/>
+            <column name="color" type="VARCHAR(50)"/>
+            <column name="engine" type="VARCHAR(50)"/>
+            <column name="horsepower" type="INT"/>
+            <column name="acceleration" type="INT"/>
+            <column name="suspension" type="VARCHAR(50)"/>
+            <column name="gear" type="VARCHAR(50)"/>
+            <column name="drivetrain" type="VARCHAR(50)"/>
+            <column name="price" type="DOUBLE PRECISION"/>
+            <column name="availability" type="BOOLEAN"/>
+        </createTable>
+
+        <createTable tableName="customers" schemaName="entity">
+            <column autoIncrement="true" name="customerid" type="SERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="firstname" type="VARCHAR(50)"/>
+            <column name="lastname" type="VARCHAR(50)"/>
+            <column name="email" type="VARCHAR(100)">
+                <constraints unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(255)"/>
+            <column name="role" type="VARCHAR(50)"/>
+        </createTable>
+
+        <createTable tableName="employees" schemaName="entity">
+            <column autoIncrement="true" name="employeeid" type="SERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="firstname" type="VARCHAR(50)"/>
+            <column name="lastname" type="VARCHAR(50)"/>
+            <column name="email" type="VARCHAR(100)">
+                <constraints unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(255)"/>
+            <column name="role" type="VARCHAR(50)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3" author="author">
+        <createTable tableName="orders" schemaName="entity">
+            <column autoIncrement="true" name="orderid" type="SERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="customerid" type="INT"/>
+            <column name="carid" type="INT"/>
+            <column name="totalprice" type="DOUBLE PRECISION"/>
+            <column name="orderstatus" type="VARCHAR(50)"/>
+            <column name="orderdate" type="DATE"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseColumnNames="customerid"
+                baseTableName="orders"
+                constraintName="fk_orders_customers"
+                referencedColumnNames="customerid"
+                referencedTableName="customers"
+                baseTableSchemaName="entity"
+                referencedTableSchemaName="entity"/>
+
+        <addForeignKeyConstraint
+                baseColumnNames="carid"
+                baseTableName="orders"
+                constraintName="fk_orders_cars"
+                referencedColumnNames="carid"
+                referencedTableName="cars"
+                baseTableSchemaName="entity"
+                referencedTableSchemaName="entity"/>
+
+        <createTable tableName="servicerequests" schemaName="entity">
+            <column autoIncrement="true" name="requestid" type="SERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="customerid" type="INT"/>
+            <column name="carid" type="INT"/>
+            <column name="requeststatus" type="VARCHAR(50)"/>
+            <column name="requesttype" type="VARCHAR(50)"/>
+            <column name="requestdescription" type="TEXT"/>
+            <column name="requestdate" type="DATE"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseColumnNames="customerid"
+                baseTableName="servicerequests"
+                constraintName="fk_servicerequests_customers"
+                referencedColumnNames="customerid"
+                referencedTableName="customers"
+                baseTableSchemaName="entity"
+                referencedTableSchemaName="entity"/>
+
+        <addForeignKeyConstraint
+                baseColumnNames="carid"
+                baseTableName="servicerequests"
+                constraintName="fk_servicerequests_cars"
+                referencedColumnNames="carid"
+                referencedTableName="cars"
+                baseTableSchemaName="entity"
+                referencedTableSchemaName="entity"/>
+    </changeSet>
+
+    <changeSet id="4" author="author">
+        <insert tableName="employees" schemaName="entity">
+            <column name="firstname" value="Anna"/>
+            <column name="lastname" value="Volkova"/>
+            <column name="email" value="annavolkova1999@somemailservice.com"/>
+            <column name="password" value="password1234"/>
+            <column name="role" value="ADMIN"/>
+        </insert>
+
+        <insert tableName="employees" schemaName="entity">
+            <column name="firstname" value="Maksim"/>
+            <column name="lastname" value="Plotnikov"/>
+            <column name="email" value="maxplotnikov2000@somemailservice.com"/>
+            <column name="password" value="qwertyQ"/>
+            <column name="role" value="MANAGER"/>
+        </insert>
+
+        <insert tableName="customers" schemaName="entity">
+            <column name="firstname" value="Alina"/>
+            <column name="lastname" value="Alexandrova"/>
+            <column name="email" value="alinochkasolnyshko1998@somemailservice.com"/>
+            <column name="password" value="passwordpassword"/>
+            <column name="role" value="USER"/>
+        </insert>
+
+        <insert tableName="customers" schemaName="entity">
+            <column name="firstname" value="Roman"/>
+            <column name="lastname" value="Romanov"/>
+            <column name="email" value="romromych777@somemailservice.com"/>
+            <column name="password" value="RoMKrUteee"/>
+            <column name="role" value="USER"/>
+        </insert>
+
+        <insert tableName="cars" schemaName="entity">
+            <column name="make" value="Hyundai"/>
+            <column name="model" value="Solaris"/>
+            <column name="year" valueNumeric="2018"/>
+            <column name="mileage" valueNumeric="10000"/>
+            <column name="color" value="Blue"/>
+            <column name="engine" value="Gas"/>
+            <column name="horsepower" valueNumeric="100"/>
+            <column name="acceleration" valueNumeric="12"/>
+            <column name="suspension" value="Independent"/>
+            <column name="gear" value="Mechanic"/>
+            <column name="drivetrain" value="Backward"/>
+            <column name="price" valueNumeric="1025000"/>
+            <column name="availability" valueBoolean="true"/>
+        </insert>
+
+        <insert tableName="cars" schemaName="entity">
+            <column name="make" value="Mazda"/>
+            <column name="model" value="CX-90"/>
+            <column name="year" valueNumeric="2023"/>
+            <column name="mileage" valueNumeric="0"/>
+            <column name="color" value="Red"/>
+            <column name="engine" value="Gas"/>
+            <column name="horsepower" valueNumeric="328"/>
+            <column name="acceleration" valueNumeric="7"/>
+            <column name="suspension" value="Independent"/>
+            <column name="gear" value="Automatic"/>
+            <column name="drivetrain" value="Independent"/>
+            <column name="price" valueNumeric="8700000"/>
+            <column name="availability" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
