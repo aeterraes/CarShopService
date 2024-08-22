@@ -11,12 +11,12 @@ import java.util.Properties;
 
 public class LiquibaseConfig {
 
-    private final Properties properties = new Properties();
+    private static final Properties properties = new Properties();
 
     public LiquibaseConfig() {
     }
 
-    public void runLiquibase() throws Exception {
+    public static void runLiquibase() throws Exception {
         System.out.println("Running Liquibase...");
 
         Scope.child(Scope.Attr.resourceAccessor, new ClassLoaderResourceAccessor(), () -> {
@@ -39,19 +39,11 @@ public class LiquibaseConfig {
         System.out.println("Running Liquibase...DONE");
     }
 
-    public Connection getConnection() throws SQLException, IOException {
+    public static Connection getConnection() throws SQLException, IOException {
         properties.load(LiquibaseConfig.class.getClassLoader().getResourceAsStream("db/liquibase.properties"));
         String url = properties.getProperty("url");
         String username = properties.getProperty("username");
         String password = properties.getProperty("password");
         return DriverManager.getConnection(url, username, password);
-    }
-
-    public static void main(String[] args){
-        try {
-            new LiquibaseConfig().runLiquibase();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
