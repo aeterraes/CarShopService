@@ -1,25 +1,26 @@
 package aeterraes.dataaccess.repositories;
 
+import aeterraes.configuration.DataSourceConfig;
 import aeterraes.dataaccess.entities.Employee;
 import aeterraes.dataaccess.models.Role;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Repository;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@NoArgsConstructor
+@Repository
 public class EmployeeRepository {
-
-    private final Connection connection;
-
-    public EmployeeRepository(Connection connection) {
-        this.connection = connection;
-    }
 
     public List<Employee> getAllEmployees() {
         String sql = "SELECT * FROM entity.employees";
         List<Employee> employees = new ArrayList<>();
-        try (Statement stmt = connection.createStatement();
+        try (Statement stmt = DataSourceConfig.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 employees.add(mapRowToEmployee(rs));
@@ -32,7 +33,7 @@ public class EmployeeRepository {
 
     public Employee getEmployeeById(int id) {
         String sql = "SELECT * FROM entity.employees WHERE employeeid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -47,7 +48,7 @@ public class EmployeeRepository {
 
     public Employee getEmployeeByEmail(String email) {
         String sql = "SELECT * FROM entity.employees WHERE email = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, email);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -63,7 +64,7 @@ public class EmployeeRepository {
     public void addEmployee(Employee employee) {
         String sql = "INSERT INTO entity.employees (firstname, lastname, email, password, role) " +
                 "VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             setEmployeeParameters(pstmt, employee);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -74,7 +75,7 @@ public class EmployeeRepository {
     public void updateEmployee(Employee employee) {
         String sql = "UPDATE entity.employees SET firstname = ?, lastname = ?, email = ?, password = ?, role = ? " +
                 "WHERE employeeid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             setEmployeeParameters(pstmt, employee);
             pstmt.setInt(6, employee.getEmployeeId());
             pstmt.executeUpdate();
@@ -85,7 +86,7 @@ public class EmployeeRepository {
 
     public void deleteEmployee(int id) {
         String sql = "DELETE FROM entity.employees WHERE employeeid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
         } catch (SQLException e) {

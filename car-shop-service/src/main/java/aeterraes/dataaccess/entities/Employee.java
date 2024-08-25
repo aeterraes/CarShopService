@@ -1,7 +1,9 @@
 package aeterraes.dataaccess.entities;
 
 import aeterraes.dataaccess.models.Role;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor

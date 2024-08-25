@@ -1,22 +1,25 @@
 package aeterraes.dataaccess.repositories;
 
+import aeterraes.configuration.DataSourceConfig;
 import aeterraes.dataaccess.entities.Car;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Repository;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor
+@Repository
 public class CarRepository {
-    private final Connection connection;
-
-    public CarRepository(Connection connection) {
-        this.connection = connection;
-    }
 
     public List<Car> getAllCars() {
         String sql = "SELECT * FROM entity.cars";
         List<Car> cars = new ArrayList<>();
-        try (Statement stmt = connection.createStatement();
+        try (Statement stmt = DataSourceConfig.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 cars.add(mapRowToCar(rs));
@@ -29,7 +32,7 @@ public class CarRepository {
 
     public Car getCarById(int id) {
         String sql = "SELECT * FROM entity.cars WHERE carid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -45,7 +48,7 @@ public class CarRepository {
     public List<Car> getCarsByAvailability() {
         String sql = "SELECT * FROM entity.cars WHERE availability = true";
         List<Car> cars = new ArrayList<>();
-        try (Statement stmt = connection.createStatement();
+        try (Statement stmt = DataSourceConfig.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 cars.add(mapRowToCar(rs));
@@ -58,7 +61,7 @@ public class CarRepository {
 
     public void changeAvailability(int carId, boolean availability) {
         String sql = "UPDATE entity.cars SET availability = ? WHERE carid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setBoolean(1, availability);
             pstmt.setInt(2, carId);
             pstmt.executeUpdate();
@@ -70,7 +73,7 @@ public class CarRepository {
     public void addCar(Car car) {
         String sql = "INSERT INTO entity.cars (make, model, year, mileage, color, engine, horsepower, acceleration, suspension, gear, drivetrain, price, availability) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             setCarParameters(pstmt, car);
             pstmt.executeUpdate();
             try (ResultSet rs = pstmt.getGeneratedKeys()) {
@@ -86,7 +89,7 @@ public class CarRepository {
     public void updateCar(Car car) {
         String sql = "UPDATE entity.cars SET make = ?, model = ?, year = ?, mileage = ?, color = ?, engine = ?, horsepower = ?, acceleration = ?, " +
                 "suspension = ?, gear = ?, drivetrain = ?, price = ?, availability = ? WHERE carid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             setCarParameters(pstmt, car);
             pstmt.setInt(14, car.getCarId());
             pstmt.executeUpdate();
@@ -97,7 +100,7 @@ public class CarRepository {
 
     public void deleteCar(int id) {
         String sql = "DELETE FROM entity.cars WHERE carid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -108,7 +111,7 @@ public class CarRepository {
     public List<Car> getCarsByMake(String make) {
         String sql = "SELECT * FROM entity.cars WHERE make = ?";
         List<Car> cars = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, make);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -124,7 +127,7 @@ public class CarRepository {
     public List<Car> getCarsByModel(String model) {
         String sql = "SELECT * FROM entity.cars WHERE model = ?";
         List<Car> cars = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, model);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -140,7 +143,7 @@ public class CarRepository {
     public List<Car> getCarsByYear(int year) {
         String sql = "SELECT * FROM entity.cars WHERE year = ?";
         List<Car> cars = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, year);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -156,7 +159,7 @@ public class CarRepository {
     public List<Car> getCarsByMileage(double mileage) {
         String sql = "SELECT * FROM entity.cars WHERE mileage = ?";
         List<Car> cars = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setDouble(1, mileage);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -172,7 +175,7 @@ public class CarRepository {
     public List<Car> getCarsByColor(String color) {
         String sql = "SELECT * FROM entity.cars WHERE color = ?";
         List<Car> cars = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, color);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -188,7 +191,7 @@ public class CarRepository {
     public List<Car> getCarsByEngine(String engine) {
         String sql = "SELECT * FROM entity.cars WHERE engine = ?";
         List<Car> cars = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, engine);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -204,7 +207,7 @@ public class CarRepository {
     public List<Car> getCarsByHorsepower(int horsepower) {
         String sql = "SELECT * FROM entity.cars WHERE horsepower = ?";
         List<Car> cars = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, horsepower);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -220,7 +223,7 @@ public class CarRepository {
     public List<Car> getCarsByAcceleration(double acceleration) {
         String sql = "SELECT * FROM entity.cars WHERE acceleration = ?";
         List<Car> cars = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setDouble(1, acceleration);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -236,7 +239,7 @@ public class CarRepository {
     public List<Car> getCarsBySuspension(String suspension) {
         String sql = "SELECT * FROM entity.cars WHERE suspension = ?";
         List<Car> cars = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, suspension);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -252,7 +255,7 @@ public class CarRepository {
     public List<Car> getCarsByGear(String gear) {
         String sql = "SELECT * FROM entity.cars WHERE gear = ?";
         List<Car> cars = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, gear);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -268,7 +271,7 @@ public class CarRepository {
     public List<Car> getCarsByDriveTrain(String driveTrain) {
         String sql = "SELECT * FROM entity.cars WHERE drivetrain = ?";
         List<Car> cars = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, driveTrain);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -284,7 +287,7 @@ public class CarRepository {
     public List<Car> getCarsByPriceRange(double minPrice, double maxPrice) {
         String sql = "SELECT * FROM entity.cars WHERE price BETWEEN ? AND ?";
         List<Car> cars = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setDouble(1, minPrice);
             pstmt.setDouble(2, maxPrice);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -300,7 +303,7 @@ public class CarRepository {
 
     public int getLastAddedCarId() {
         String sql = "SELECT carid FROM entity.cars ORDER BY carid DESC LIMIT 1";
-        try (Statement stmt = connection.createStatement();
+        try (Statement stmt = DataSourceConfig.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             if (rs.next()) {
                 return rs.getInt("carid");
@@ -314,7 +317,7 @@ public class CarRepository {
     public List<Car> getCarsByAvailability(boolean availability) {
         String sql = "SELECT * FROM entity.cars WHERE availability = ?";
         List<Car> cars = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setBoolean(1, availability);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {

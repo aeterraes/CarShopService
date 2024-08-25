@@ -1,0 +1,5 @@
+# Created at 2024-08-25T11:24:50.764
+Boot Manifest-JAR contains absolute paths in classpath 'D:\hw-ylab\Y_LAB\car-shop-service\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+
