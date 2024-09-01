@@ -1,5 +1,7 @@
-FROM tomcat:10.1.12
+FROM openjdk:19
 
-COPY target/car-shop-service-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/
+ADD target/car-shop-service-1.0-SNAPSHOT.jar car-shop-service.jar
+
+ENTRYPOINT ["java", "-jar", "car-shop-service.jar"]
 
 EXPOSE 8080

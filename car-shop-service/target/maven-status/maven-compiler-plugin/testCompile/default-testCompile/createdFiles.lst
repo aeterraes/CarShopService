@@ -1,2 +1,6 @@
-aeterraes\servlets\CustomerServletTest.class
-aeterraes\servlets\CarServletTest.class
+aeterraes\controllers\EmployeeControllerTest.class
+aeterraes\controllers\OrderControllerTest.class
+aeterraes\controllers\ServiceRequestControllerTest.class
+aeterraes\controllers\AuthControllerTest.class
+aeterraes\controllers\CarControllerTest.class
+aeterraes\controllers\CustomerControllerTest.class

@@ -1,25 +1,24 @@
 package aeterraes.dataaccess.repositories;
 
+import aeterraes.configuration.DataSourceConfig;
 import aeterraes.dataaccess.entities.ServiceRequest;
 import aeterraes.dataaccess.models.ServiceRequestStatus;
 import aeterraes.dataaccess.models.UserRequestType;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor
+@Repository
 public class ServiceRequestRepository {
-
-    private final Connection connection;
-
-    public ServiceRequestRepository(Connection connection) {
-        this.connection = connection;
-    }
 
     public List<ServiceRequest> getAllServiceRequests() {
         String sql = "SELECT * FROM entity.serviceRequests";
         List<ServiceRequest> requests = new ArrayList<>();
-        try (Statement stmt = connection.createStatement();
+        try (Statement stmt = DataSourceConfig.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 requests.add(mapRowToServiceRequest(rs));
@@ -32,7 +31,7 @@ public class ServiceRequestRepository {
 
     public ServiceRequest getServiceRequestById(int id) {
         String sql = "SELECT * FROM entity.serviceRequests WHERE requestid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -48,7 +47,7 @@ public class ServiceRequestRepository {
     public void addServiceRequest(ServiceRequest request) {
         String sql = "INSERT INTO entity.serviceRequests (customerid, carid, requestDate, requestType, requestDescription, requestStatus) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             setServiceRequestParameters(pstmt, request);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -59,7 +58,7 @@ public class ServiceRequestRepository {
     public void updateServiceRequest(ServiceRequest request) {
         String sql = "UPDATE entity.serviceRequests SET customerid = ?, carid = ?, requestDate = ?, requestType = ?, requestDescription = ?, requestStatus = ? " +
                 "WHERE requestid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             setServiceRequestParameters(pstmt, request);
             pstmt.setInt(7, request.getRequestId());
             pstmt.executeUpdate();
@@ -70,7 +69,7 @@ public class ServiceRequestRepository {
 
     public void deleteServiceRequest(int id) {
         String sql = "DELETE FROM entity.serviceRequests WHERE requestid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -81,7 +80,7 @@ public class ServiceRequestRepository {
     public List<ServiceRequest> getServiceRequestsByStatus(ServiceRequestStatus status) {
         String sql = "SELECT * FROM entity.serviceRequests WHERE requestStatus = ?";
         List<ServiceRequest> requests = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, status.name());
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -97,7 +96,7 @@ public class ServiceRequestRepository {
     public List<ServiceRequest> getServiceRequestsByDateRange(Date startDate, Date endDate) {
         String sql = "SELECT * FROM entity.serviceRequests WHERE requestDate BETWEEN ? AND ?";
         List<ServiceRequest> requests = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setDate(1, startDate);
             pstmt.setDate(2, endDate);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -114,7 +113,7 @@ public class ServiceRequestRepository {
     public List<ServiceRequest> getServiceRequestsByType(UserRequestType type) {
         String sql = "SELECT * FROM entity.serviceRequests WHERE requestType = ?";
         List<ServiceRequest> requests = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, type.name());
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -130,7 +129,7 @@ public class ServiceRequestRepository {
     public List<ServiceRequest> getServiceRequestsByCustomerId(int id) {
         String sql = "SELECT * FROM entity.serviceRequests WHERE customerid = ?";
         List<ServiceRequest> requests = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -145,7 +144,7 @@ public class ServiceRequestRepository {
 
     public ServiceRequest getServiceRequestByCustomerId(int id) {
         String sql = "SELECT * FROM entity.serviceRequests WHERE customerid = ? LIMIT 1";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {

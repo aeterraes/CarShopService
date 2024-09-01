@@ -1,24 +1,23 @@
 package aeterraes.dataaccess.repositories;
 
+import aeterraes.configuration.DataSourceConfig;
 import aeterraes.dataaccess.entities.Order;
 import aeterraes.dataaccess.models.OrderStatus;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor
+@Repository
 public class OrderRepository {
-
-    private final Connection connection;
-
-    public OrderRepository(Connection connection) {
-        this.connection = connection;
-    }
 
     public List<Order> getAllOrders() {
         String sql = "SELECT * FROM entity.orders";
         List<Order> orders = new ArrayList<>();
-        try (Statement stmt = connection.createStatement();
+        try (Statement stmt = DataSourceConfig.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 orders.add(mapRowToOrder(rs));
@@ -31,7 +30,7 @@ public class OrderRepository {
 
     public Order getOrderById(int id) {
         String sql = "SELECT * FROM entity.orders WHERE orderid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -47,7 +46,7 @@ public class OrderRepository {
     public void addOrder(Order order) {
         String sql = "INSERT INTO entity.orders (customerid, carid, totalPrice, orderStatus, orderDate) " +
                 "VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             setOrderParameters(pstmt, order);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -58,7 +57,7 @@ public class OrderRepository {
     public void updateOrder(Order order) {
         String sql = "UPDATE entity.orders SET customerid = ?, carid = ?, totalPrice = ?, orderStatus = ?, orderDate = ? " +
                 "WHERE orderid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             setOrderParameters(pstmt, order);
             pstmt.setInt(6, order.getOrderId());
             pstmt.executeUpdate();
@@ -69,7 +68,7 @@ public class OrderRepository {
 
     public void deleteOrder(int id) {
         String sql = "DELETE FROM entity.orders WHERE orderid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -80,7 +79,7 @@ public class OrderRepository {
     public List<Order> getOrdersByStatus(OrderStatus status) {
         String sql = "SELECT * FROM entity.orders WHERE orderStatus = ?";
         List<Order> orders = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, status.name());
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -96,7 +95,7 @@ public class OrderRepository {
     public List<Order> getOrdersByDateRange(Date startDate, Date endDate) {
         String sql = "SELECT * FROM entity.orders WHERE orderDate BETWEEN ? AND ?";
         List<Order> orders = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setDate(1, startDate);
             pstmt.setDate(2, endDate);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -113,7 +112,7 @@ public class OrderRepository {
     public List<Order> getOrdersByPriceRange(double minPrice, double maxPrice) {
         String sql = "SELECT * FROM entity.orders WHERE totalPrice BETWEEN ? AND ?";
         List<Order> orders = new ArrayList<>();
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setDouble(1, minPrice);
             pstmt.setDouble(2, maxPrice);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -129,7 +128,7 @@ public class OrderRepository {
 
     public void updateOrderStatus(int orderId, OrderStatus newStatus) {
         String sql = "UPDATE entity.orders SET orderStatus = ? WHERE orderid = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, newStatus.name());
             pstmt.setInt(2, orderId);
             pstmt.executeUpdate();
@@ -140,7 +139,7 @@ public class OrderRepository {
 
     public Order getOrderByCustomerId(int id) {
         String sql = "SELECT * FROM entity.orders WHERE customerid = ? ORDER BY orderid DESC LIMIT 1";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = DataSourceConfig.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
